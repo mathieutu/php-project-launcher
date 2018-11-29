@@ -2,6 +2,7 @@
     "name": "mathieutu/php-project-launcher",
     "type": "library",
     "description": "A php project launcher with Docker.",
+    "license": "MIT",
 
     "authors": [
         {
