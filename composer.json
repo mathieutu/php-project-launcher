@@ -10,5 +10,5 @@
             "email": "dev@mathieutu.ovh"
         }
     ],
-    "bin": ["./bin/ppl"]
+    "bin": ["./bin/ppl", "./bin/ppla", "./bin/pplsf"]
 }

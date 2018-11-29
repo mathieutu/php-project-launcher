@@ -1,0 +1,2 @@
+#!/bin/sh
+. "${BASH_SOURCE%/*}/ppl" artisan $@
