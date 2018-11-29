@@ -38,7 +38,7 @@ services:
       - 5432
     environment:
       POSTGRES_USER: "root"
-      POSTGRES_USER: "local"
+      POSTGRES_DB: "local"
       POSTGRES_PASSWORD: ""
 
 #  db:
