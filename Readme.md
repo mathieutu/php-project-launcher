@@ -48,33 +48,51 @@ $ ./vendor/bin/ppl open {path?}
 ```
 *Tip: If you do it quickly after `up` command, you could see a 502 page. Hold tight and refresh after few seconds, it's just the time your server need to start!*
 
+
+### 🗃 See your database content in a dedicated software
+You can see the public port of your database with:
+```sh
+$ ./vendor/bin/ppl port db
+```
+
+If you didn't change the configuration for db service, you will able to connect with:
+```
+Host: 127.0.0.1
+Port: [port showed in previous command]
+User: root
+Database: local
+```
+*Soon: a command to show you directly the database information.*
+
 ### 🎉 Make great things
 
 You can see all you can do with:
 
-```bash
+```text
 $ ppl --help
 
-PHP Project launcher.
+PHP Project Launcher.
 
 Usage:
-  ppl [COMMAND] [ARGS...]
-  ppl -h | --help
+  ./vendor/bin/ppl [COMMAND] [ARGS...]
+  ./vendor/bin/ppl -h | --help
 
 Commands:
-  init               Install the docker files to set the services
-  up | u             Run the project services (run the proxy if not already launched)
-  down | d           Stop and remove the project services
-  reload | rl        Down and up the project services
-  artisan | a        Execute Laravel Artisan in web service (with access to DB)
-  console | sf       Execute Symfony Console in web service (with access to DB)
-  composer | c       Execute Composer in web service (with proper version of php)
-  yarn | y           Execute Yarn in project (with Node v10, linux environment)
-  bash | sh          Open a bash console in web service
-  open               Open project in web browser
-  logs               View output from services
-  ps                 List services
-  *                  Fallback on docker-compose binary
+  init               Install the docker files to set the services. Can be used with project name in parameter.
+  up | u             Run the project services (run the proxy if not already launched).
+  down | d           Stop and remove the project services.
+  reload | rl        Down and up the project services.
+  ports | p          List private -> public binding ports. Can be used with service name in parameter.
+  open | o           Open project in web browser.
+  artisan | a        Execute Laravel Artisan in web service (with access to DB).
+  console | sf       Execute Symfony Console in web service (with access to DB).
+  composer | c       Execute Composer in web service (with proper version of php).
+  yarn | y           Execute Yarn in project (with Node v10, linux environment).
+  bash | sh          Open a bash console in web service.
+  logs               View output from services.
+  ps                 List services.
+  *                  Fallback on docker-compose binary.
+
 ```
 
 *Tip: By adding `./vendor/bin/` to your path, you will be able to directly type `ppl` instead of `./vendor/bin/ppl`. And it will be useful for all the composer binaries, like `phpunit`! For that, you just have to add `export PATH=∼/.composer/vendor/bin:$PATH` to your .bashrc, or .zshrc file.*
