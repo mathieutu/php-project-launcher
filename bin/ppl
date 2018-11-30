@@ -28,13 +28,16 @@ up() {
 }
 
 open() {
-    domain='.localhost'
-    virtualHosts="$($dkce sh -c 'echo $VIRTUAL_HOST' | tr -d '\r')"
-    url="$(python - << EOF
-print '$virtualHosts'.split('$domain')[0].split(',')[-1].strip()+'$domain'
-EOF
-)"
-    python -m webbrowser "http://$url/$1"
+    rootUrl="$($dkce sh -c 'echo $PPL_OPEN' | tr -d '\r')"
+    rootUrl="${rootUrl// }"
+    if [[ ! -z $rootUrl ]]; then
+        url="$rootUrl$1"
+        echo "📺 Opening $url in your browser..."
+        python -m webbrowser  $url
+
+    else
+        echo "No \$PPL_OPEN environment variable found in web."
+    fi
 }
 
 down() {

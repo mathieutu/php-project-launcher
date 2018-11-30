@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 networks:
   proxy:
     external: true
@@ -12,7 +12,8 @@ services:
       - 80
     environment:
       WEBROOT: /var/www/html/public/
-      VIRTUAL_HOST: ${PROJECT_NAME}.test, ${PROJECT_NAME}.localhost
+      VIRTUAL_HOST: ${PROJECT_NAME}.test, ${PROJECT_NAME}.localhost, ${PROJECT_NAME}.dev.link-value.net
+      PPL_OPEN: http://${PROJECT_NAME}.localhost/
       ENABLE_XDEBUG: 1
       PHP_IDE_CONFIG: serverName=${PROJECT_NAME}
       XDEBUG_CONFIG: remote_host=docker.for.mac.localhost

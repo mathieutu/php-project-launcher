@@ -46,8 +46,9 @@ $ ./vendor/bin/ppl up
 $ ./vendor/bin/ppl open {path?}
 
 ```
-*Tip: If you do it quickly after `up` command, you could see a 502 page. Hold tight and refresh after few seconds, it's just the time your server need to start!*
+*Tip: If you do it quickly after `up` command, you could see a 502 page. Hold tight and refresh after few seconds, it's just the time your server needs to start!*
 
+*Tip²: You can customize the domain to open with the `$PPL_OPEN` env variable in web service.*
 
 ### 🗃 See your database content in a dedicated software
 You can see the public port of your database with:
@@ -89,6 +90,7 @@ Commands:
   composer | c       Execute Composer in web service (with proper version of php).
   yarn | y           Execute Yarn in project (with Node v10, linux environment).
   bash | sh          Open a bash console in web service.
+  inspect            Show the docker configuration for a service.
   logs               View output from services.
   ps                 List services.
   *                  Fallback on docker-compose binary.
@@ -102,7 +104,7 @@ Commands:
 
 A standard Laravel/Symfony application with a PostgreSQL database should work out of the box, after having configured your `.env` file.
 
-Uncomment the mysql example if you prefer to use it.
+Uncomment the mysql example in `docker-compose.yml` if you prefer to use it.
 
 For now, in the original flavour, you can see the documentation pages of:
 
@@ -128,6 +130,11 @@ DB_PASSWORD=
 DATABASE_URL=postgresql://root@db/local
 # DATABASE_URL=mysql://root@db/local
 ```
+
+### Customize your URLs
+In the `docker-compose.yml` file, you will be able to customise several env variables in your web service:
+- `$VIRTUAL_HOST` which is the list of all the domain names that the proxy will redirect to this container.
+- `$PPL_OPEN` which is the root url that the command `ppl open` will use.
 
 
 **TO BE CONTINUED...**
