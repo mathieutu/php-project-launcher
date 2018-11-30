@@ -125,9 +125,12 @@ EOF
 
 dbInfos() {
     # TODO
-    $dk inspect -f $($dkc ps -q db)
+    $dk inspect -f '' $($dkc ps -q db)
 }
 
+inspect() {
+    $dk inspect $($dkc ps -q $@)
+}
 usage() {
     cat <<EOF
 PHP Project Launcher.
@@ -209,6 +212,10 @@ if [[ $# -gt 0 ]]; then
 
         db)
            dbInfos
+            ;;
+
+        inspect | i)
+            inspect $@
             ;;
 
         --help | -h)
