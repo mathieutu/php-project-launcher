@@ -50,5 +50,5 @@ services:
 #      - 3306
 #    environment:
 #      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-#      MYSQL_DATABASE="local"
+#      MYSQL_DATABASE: "local"
 

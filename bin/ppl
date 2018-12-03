@@ -27,17 +27,26 @@ up() {
     $dkcU $@
 }
 
-open() {
-    rootUrl="$($dkce sh -c 'echo $PPL_OPEN' | tr -d '\r')"
-    rootUrl="${rootUrl// }"
-    if [[ ! -z $rootUrl ]]; then
-        url="$rootUrl$1"
-        echo "📺 Opening $url in your browser..."
-        python -m webbrowser  $url
-
+_envVar() {
+    var="$($dkc exec $1 sh -c "echo \$$2" | tr -d '\r')"
+    var="${var// }"
+    if [[ ! -z $var ]]; then
+        echo $var
     else
-        echo "No \$PPL_OPEN environment variable found in web."
+        if [[ $# -gt 2 ]]; then
+            echo $3
+        else
+            echo "No \$$2 environment variable found in $1." >&2
+            exit 1
+        fi
     fi
+}
+
+open() {
+    rootUrl=$(_envVar web PPL_OPEN) || exit 1
+    url="$rootUrl$1"
+    echo "📺 Opening $url in your browser..."
+    python -m webbrowser $url
 }
 
 down() {
@@ -124,8 +133,66 @@ EOF
 }
 
 dbInfos() {
-    # TODO
-    $dk inspect -f '' $($dkc ps -q db)
+    image="$($dk inspect -f '{{.Config.Image}}' $($dkc ps -q db))"
+
+    case $image in
+    postgres*)
+        database=$(_envVar db POSTGRES_DB postgres)
+        username=$(_envVar db POSTGRES_USER postgres)
+        password=$(_envVar db POSTGRES_PASSWORD '')
+        port=$($dkc port db 5432 | cut -d ':' -f 2)
+        cat <<EOF
+From the container:
+    DB_CONNECTION=pgsql
+    DB_HOST=db
+    DB_PORT=5432
+    DB_USERNAME=$username
+    DB_PASSWORD=$password
+    DB_DATABASE=$database
+    DATABASE_URL=postgresql://$username:$password@db:5432/$database
+
+From outside:
+    Type: PostgresSQL
+    Host: 127.0.0.1
+    Port: $port
+    Username: $username
+    Password: $password
+    Database: $database
+    Url: postgresql://$username:$password@127.0.0.1:$port/$database
+EOF
+       ;;
+
+   mysql*)
+        database=$(_envVar db MYSQL_DATABASE)
+        username=$(_envVar db MYSQL_USER root)
+        password=$(_envVar db MYSQL_PASSWORD '')
+        port=$($dkc port db 3306 | cut -d ':' -f 2)
+
+        cat <<EOF
+From the container:
+    DB_CONNECTION=mysql
+    DB_HOST=db
+    DB_PORT=3306
+    DB_USERNAME=$username
+    DB_PASSWORD=$password
+    DB_DATABASE=$database
+    DATABASE_URL=mysql://$username:$password@db:3306/$database
+
+From outside:
+    Type: MySQL
+    Host: 127.0.0.1
+    Port: $port
+    Username: $username
+    Password: $password
+    Database: $database
+    Url: mysql://$username:$password@127.0.0.1:$port/$database
+EOF
+       ;;
+   *)
+        echo "😞 Only postgres and mysql databases are handled for now. PRs welcomed!" >&2
+        exit 1
+        ;;
+    esac
 }
 
 inspect() {
@@ -210,7 +277,7 @@ if [[ $# -gt 0 ]]; then
             ports $1
             ;;
 
-        db)
+        database | db)
            dbInfos
             ;;
 

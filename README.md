@@ -19,7 +19,10 @@ $ composer require mathieutu/php-project-launcher
 ```sh
 $ ./vendor/bin/ppl init {project-name?}
 ```
-*Tip: You can personalize the project name, or leave empty to use the directory name. It will be used to automatically set your domaine names: `project-name.test` and `project-name.localhost` by default. To use `*.test` the developer need to edit its `hosts` or [add a dns server](https://medium.com/@narakuw/brew-install-dnsmasq-in-macos-sierra-26021c824be8), but `*.localhost` should work out of the box in unix OS*
+*Tip: You can personalize the project name, or leave empty to use the directory name. 
+It will be used to automatically set your domain names: `project-name.test` and `project-name.localhost` by default. 
+To use `*.test` the developer need to edit its `hosts` or [add a dns server](https://medium.com/@narakuw/brew-install-dnsmasq-in-macos-sierra-26021c824be8), 
+but `*.localhost` should work out of the box in unix OS*
 
 ### 📝 Choose your flavour
 
@@ -41,7 +44,24 @@ $ ./vendor/bin/ppl up
 ```
 *Tip: A container of [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) will be launched with `nginx-proxy` name if not found. It will allow you to use several domain names for your projects*
 
-### 🤩 See your project in the browser
+## 🎉 Make great things
+
+### Update your `.env` file
+
+With the `ppl db` command you will see all the values that you need for your `.env` file: 
+```sh
+$ ./vendor/bin/ppl db
+From the container:
+    DB_CONNECTION=pgsql
+    DB_HOST=db
+    DB_PORT=5432
+    DB_USERNAME=root
+    DB_PASSWORD=
+    DB_DATABASE=local
+    DATABASE_URL=postgresql://root:@db:5432/local
+...
+```
+### See your project in the browser
 ```sh
 $ ./vendor/bin/ppl open {path?}
 
@@ -50,23 +70,23 @@ $ ./vendor/bin/ppl open {path?}
 
 *Tip²: You can customize the domain to open with the `$PPL_OPEN` env variable in web service.*
 
-### 🗃 See your database content in a dedicated software
+### See your database content in a dedicated software
 You can see the public port of your database with:
 ```sh
-$ ./vendor/bin/ppl port db
+$ ./vendor/bin/ppl db
+...
+From outside:
+    Type: PostgresSQL
+    Host: 127.0.0.1
+    Port: 32813
+    Username: root
+    Password: 
+    Database: local
+    Url: postgresql://root:@127.0.0.1:32813/local
 ```
 
-If you didn't change the configuration for db service, you will able to connect with:
-```
-Host: 127.0.0.1
-Port: [port showed in previous command]
-User: root
-Database: local
-```
-*Soon: a command to show you directly the database information.*
 
-### 🎉 Make great things
-
+### And more...
 You can see all you can do with:
 
 ```text
@@ -83,14 +103,15 @@ Commands:
   up | u             Run the project services (run the proxy if not already launched).
   down | d           Stop and remove the project services.
   reload | rl        Down and up the project services.
-  ports | p          List private -> public binding ports. Can be used with service name in parameter.
   open | o           Open project in web browser.
+  database | db      Show the env variables and the database connection information.           
+  ports | p          List private -> public binding ports. Can be used with service name in parameter.
   artisan | a        Execute Laravel Artisan in web service (with access to DB).
   console | sf       Execute Symfony Console in web service (with access to DB).
   composer | c       Execute Composer in web service (with proper version of php).
   yarn | y           Execute Yarn in project (with Node v10, linux environment).
   bash | sh          Open a bash console in web service.
-  inspect            Show the docker configuration for a service.
+  inspect | i        Show the docker configuration for a service.
   logs               View output from services.
   ps                 List services.
   *                  Fallback on docker-compose binary.
@@ -113,23 +134,6 @@ For now, in the original flavour, you can see the documentation pages of:
 - [postgres](https://hub.docker.com/_/postgres/) and [mysql](https://hub.docker.com/_/mysql/) databases containers.
 - [docker](https://docs.docker.com/get-started/) and [docker-compose](https://docs.docker.com/compose/overview/) tools.
 
-
-### Update your env file
-
-#### Laravel
-```env
-DB_CONNECTION=pgsql
-# DB_CONNECTION=mysql
-DB_HOST=db
-DB_DATABASE=local
-DB_USERNAME=root
-DB_PASSWORD=
-```
-#### Symfony
-```env
-DATABASE_URL=postgresql://root@db/local
-# DATABASE_URL=mysql://root@db/local
-```
 
 ### Customize your URLs
 In the `docker-compose.yml` file, you will be able to customise several env variables in your web service:
