@@ -118,7 +118,7 @@ Commands:
 
 ```
 
-*Tip: By adding `./vendor/bin/` to your path, you will be able to directly type `ppl` instead of `./vendor/bin/ppl`. And it will be useful for all the composer binaries, like `phpunit`! For that, you just have to add `export PATH=∼/.composer/vendor/bin:$PATH` to your .bashrc, or .zshrc file.*
+*Tip: By adding `./vendor/bin/` to your path, you will be able to directly type `ppl` instead of `./vendor/bin/ppl`. And it will be useful for all the composer binaries, like `phpunit`! For that, you just have to add `export PATH=./vendor/bin:$PATH` to your .bashrc, or .zshrc file.*
 
 
 ## Make the configuration all yours
