@@ -85,6 +85,25 @@ From outside:
     Url: postgresql://root:@127.0.0.1:32813/local
 ```
 
+### Use your favorite framework cli tool
+You can directly access to cli tools with:
+```sh
+$ ./vendor/bin/ppl artisan
+```
+```sh
+$ ./vendor/bin/ppl console
+```
+
+Tips: because we never save too much time, you can directly them with `ppla` and `pplsf` aliases. 
+
+Example:
+```sh
+ppla migrate
+```
+
+```sh
+pplsh doctrine:migrations:migrate
+```
 
 ### And more...
 You can see all you can do with:
