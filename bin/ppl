@@ -107,27 +107,6 @@ init() {
     echo "🎉  You're ready to go. Launch '$0 up' to start the project."
 }
 
-ports() {
-    template=$(cat << 'EOF'
-{{$service := (index .Config.Labels "com.docker.compose.service")}}
-{{range $p, $conf := .NetworkSettings.Ports}}
-    {{if $conf}}
-        \n\r - {{$service}}:{{$p}} -> localhost:{{(index $conf 0).HostPort}}
-    {{end}}
-{{end}}
-EOF
-)
-    result="$($dk inspect -f "$template" $($dkc ps -q))"
-
-    if [[ $# -gt 0 ]]; then
-        echo
-        echo $result | grep $1
-    else
-        echo $result
-    fi
-    echo
-}
-
 dbInfos() {
     image="$($dk inspect -f '{{.Config.Image}}' $($dkc ps -q db))"
 
@@ -207,7 +186,6 @@ Commands:
   up | u             Run the project services (run the proxy if not already launched).
   down | d           Stop and remove the project services.
   reload | rl        Down and up the project services (with image rebuild).
-  ports | p          List private -> public binding ports. Can be used with service name in parameter.
   open | o           Open project in web browser.
   artisan | a        Execute Laravel Artisan in the web service (with access to DB).
   console | sf       Execute Symfony Console in the web service (with access to DB).
@@ -272,10 +250,6 @@ if [[ $# -gt 0 ]]; then
 
         open | o)
             open $1
-            ;;
-
-        ports | p)
-            ports $1
             ;;
 
         database | db)
