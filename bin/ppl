@@ -187,12 +187,14 @@ Commands:
   down | d           Stop and remove the project services.
   reload | rl        Down and up the project services (with image rebuild).
   open | o           Open project in web browser.
+  database | db      Show the env variables and the database connection information.
   artisan | a        Execute Laravel Artisan in the web service (with access to DB).
   console | sf       Execute Symfony Console in the web service (with access to DB).
   composer | c       Execute Composer in the web service (with proper version of php).
   yarn | y           Execute Yarn in the web service.
   bash | sh          Open a bash console in the web service.
   exec | e           Execute a command in the web service.
+  inspect | i        Show the docker configuration for a service.
   logs               View output from services.
   ps                 List services.
   *                  Fallback on docker-compose binary.

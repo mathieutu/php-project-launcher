@@ -9,14 +9,14 @@ Just once per project, in its root sources folder.
 If the services are already set up for your project you can directly jump to "[Launch the services](#launch-the-services)" chapter.
 
 ### 📦 Require the package
-```sh
+```bash
 $ composer require mathieutu/php-project-launcher
 ```
 
 *Tip: You should commit here! 😇*
 
 ### 🐳 Initialize Docker files
-```sh
+```bash
 $ ./vendor/bin/ppl init {project-name?}
 ```
 *Tip: You can personalize the project name, or leave empty to use the directory name. 
@@ -38,7 +38,7 @@ See the [configuration chapter](#make-the-configuration-all-yours) for all the d
 For each developer on its computer, every time s‧he need to launch the project.
 
 ### 🚀 Launch your project
-```sh
+```bash
 $ ./vendor/bin/ppl up
 
 ```
@@ -49,7 +49,7 @@ $ ./vendor/bin/ppl up
 ### Update your `.env` file
 
 With the `ppl db` command you will see all the values that you need for your `.env` file: 
-```sh
+```bash
 $ ./vendor/bin/ppl db
 From the container:
     DB_CONNECTION=pgsql
@@ -62,7 +62,7 @@ From the container:
 ...
 ```
 ### See your project in the browser
-```sh
+```bash
 $ ./vendor/bin/ppl open {path?}
 
 ```
@@ -72,7 +72,7 @@ $ ./vendor/bin/ppl open {path?}
 
 ### See your database content in a dedicated software
 You can see the public port of your database with:
-```sh
+```bash
 $ ./vendor/bin/ppl db
 ...
 From outside:
@@ -87,21 +87,21 @@ From outside:
 
 ### Use your favorite framework cli tool
 You can directly access to cli tools with:
-```sh
+```bash
 $ ./vendor/bin/ppl artisan
 ```
-```sh
+```bash
 $ ./vendor/bin/ppl console
 ```
 
 Tips: because we never save too much time, you can directly them with `ppla` and `pplsf` aliases. 
 
 Example:
-```sh
+```bash
 ppla migrate
 ```
 
-```sh
+```bash
 pplsh doctrine:migrations:migrate
 ```
 
@@ -121,20 +121,19 @@ Commands:
   init               Install the docker files to set the services. Can be used with project name in parameter.
   up | u             Run the project services (run the proxy if not already launched).
   down | d           Stop and remove the project services.
-  reload | rl        Down and up the project services.
+  reload | rl        Down and up the project services (with image rebuild).
   open | o           Open project in web browser.
   database | db      Show the env variables and the database connection information.           
-  ports | p          List private -> public binding ports. Can be used with service name in parameter.
-  artisan | a        Execute Laravel Artisan in web service (with access to DB).
-  console | sf       Execute Symfony Console in web service (with access to DB).
-  composer | c       Execute Composer in web service (with proper version of php).
-  yarn | y           Execute Yarn in project (with Node v10, linux environment).
-  bash | sh          Open a bash console in web service.
+  artisan | a        Execute Laravel Artisan in the web service (with access to DB).
+  console | sf       Execute Symfony Console in the web service (with access to DB).
+  composer | c       Execute Composer in the web service (with proper version of php).
+  yarn | y           Execute Yarn in the web service.
+  bash | sh          Open a bash console in the web service.
+  exec | e           Execute a command in the web service.
   inspect | i        Show the docker configuration for a service.
   logs               View output from services.
   ps                 List services.
   *                  Fallback on docker-compose binary.
-
 ```
 
 *Tip: By adding `./vendor/bin/` to your path, you will be able to directly type `ppl` instead of `./vendor/bin/ppl`. And it will be useful for all the composer binaries, like `phpunit`! For that, you just have to add `export PATH=./vendor/bin:$PATH` to your .bashrc, or .zshrc file.*
