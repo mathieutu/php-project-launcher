@@ -214,6 +214,7 @@ Commands:
   composer | c       Execute Composer in the web service (with proper version of php).
   yarn | y           Execute Yarn in the web service.
   bash | sh          Open a bash console in the web service.
+  exec | e           Execute a command in the web service.
   logs               View output from services.
   ps                 List services.
   *                  Fallback on docker-compose binary.
@@ -259,6 +260,10 @@ if [[ $# -gt 0 ]]; then
 
         bash | sh)
             $dkce bash $@
+            ;;
+
+        exec | e)
+            $dkce $@
             ;;
 
         init)
