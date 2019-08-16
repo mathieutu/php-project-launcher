@@ -1,2 +1,3 @@
 #!/bin/bash
-. "${BASH_SOURCE%/*}/ppl" artisan $@
+# shellcheck source=./ppl
+. "${BASH_SOURCE%/*}/ppl" artisan "$@"

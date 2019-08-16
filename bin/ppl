@@ -24,17 +24,17 @@ createProxyIfNotRunning() {
 
 up() {
     createProxyIfNotRunning
-    $dkcU $@
+    $dkcU "$@"
 }
 
 _envVar() {
-    var="$($dkc exec $1 sh -c "echo \$$2" | tr -d '\r')"
+    var="$($dkc exec "$1" sh -c "echo \$$2" | tr -d '\r')"
     var="${var// }"
-    if [[ ! -z $var ]]; then
-        echo $var
+    if [[ -n $var ]]; then
+        echo "$var"
     else
         if [[ $# -gt 2 ]]; then
-            echo $3
+            echo "$3"
         else
             echo "No \$$2 environment variable found in $1." >&2
             exit 1
@@ -46,27 +46,27 @@ open() {
     rootUrl=$(_envVar web PPL_OPEN) || exit 1
     url="$rootUrl$1"
     echo "📺 Opening $url in your browser..."
-    python -m webbrowser $url
+    python -m webbrowser "$url"
 }
 
 down() {
-    $dkcd $@
+    $dkcd "$@"
 }
 
 artisan() {
-    $dkce php artisan $@
+    $dkce php artisan "$@"
 }
 
 console() {
-    $dkce php ./bin/console $@
+    $dkce php ./bin/console "$@"
 }
 
 composer() {
-    $dkce composer $@
+    $dkce composer "$@"
 }
 
 yarn() {
-    $dkce yarn $@
+    $dkce yarn "$@"
 }
 
 getPath() {
@@ -77,7 +77,7 @@ getPath() {
       [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
     done
 
-    echo "$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
+     cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd
 }
 
 getSrcPath() {
@@ -85,12 +85,12 @@ getSrcPath() {
 }
 
 writeDockerComposeFile() {
-    sed -e "s/\${PROJECT_NAME}/$1/g" < $(getSrcPath)/docker-compose.yml.tpl > ${PWD}/docker-compose.yml
+    sed -e "s/\${PROJECT_NAME}/$1/g" < "$(getSrcPath)"/docker-compose.yml.tpl > "${PWD}"/docker-compose.yml
     echo "📦  New docker-compose.yml written for $1 project."
 }
 
 copyDockerFolder() {
-    cp -r $(getSrcPath)/docker ${PWD}
+    cp -r "$(getSrcPath)"/docker "${PWD}"
     echo "🐳  Docker folder copied!"
 }
 
@@ -101,14 +101,14 @@ init() {
         projectName=${PWD##*/}
     fi
 
-    writeDockerComposeFile $projectName
+    writeDockerComposeFile "$projectName"
     copyDockerFolder
 
     echo "🎉  You're ready to go. Launch '$0 up' to start the project."
 }
 
 dbInfos() {
-    image="$($dk inspect -f '{{.Config.Image}}' $($dkc ps -q db))"
+    image="$($dk inspect -f '{{.Config.Image}}' "$($dkc ps -q db)")"
 
     case $image in
     postgres*)
@@ -171,7 +171,7 @@ EOF
 }
 
 inspect() {
-    $dk inspect $($dkc ps -q $@)
+    $dk inspect "$($dkc ps -q "$@")"
 }
 usage() {
     cat <<EOF
@@ -208,48 +208,48 @@ if [[ $# -gt 0 ]]; then
 
     case ${firstArg} in
         up | u)
-            up $@
+            up "$@"
             ;;
 
         down | d)
-            down $@
+            down "$@"
             ;;
 
         reload | rl)
             down
-            up --build $@
+            up --build "$@"
             ;;
 
         artisan | a)
-            artisan $@
+            artisan "$@"
             ;;
 
         console | sf)
-            console $@
+            console "$@"
             ;;
 
         composer | c)
-            composer $@
+            composer "$@"
             ;;
 
         yarn | y)
-            yarn $@
+            yarn "$@"
             ;;
 
         bash | sh)
-            $dkce bash $@
+            $dkce bash "$@"
             ;;
 
         exec | e)
-            $dkce $@
+            $dkce "$@"
             ;;
 
         init)
-            init $1
+            init "$1"
             ;;
 
         open | o)
-            open $1
+            open "$1"
             ;;
 
         database | db)
@@ -257,15 +257,15 @@ if [[ $# -gt 0 ]]; then
             ;;
 
         inspect | i)
-            inspect $@
+            inspect "$@"
             ;;
 
         --help | -h)
             usage
             ;;
         *)
-            echo "🐳 Fallback to \"docker-compose $firstArg $@\": "
-            $dkc ${firstArg} $@
+            echo "🐳 Fallback to \"docker-compose $firstArg $*\": "
+            $dkc "${firstArg}" "$@"
             ;;
     esac
 else
