@@ -4,178 +4,200 @@ dk="docker"
 
 dkc="docker-compose"
 dkcU="$dkc up -d --remove-orphans"
-dkcd="$dkc down"
+dkcd="$dkc down --remove-orphans"
 dkce="$dkc exec web"
 
-createProxy() {
-    $dk rm -f nginx-proxy > /dev/null 2>&1
-    $dk network create proxy 2>/dev/null
-    $dk run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro --name=nginx-proxy --restart=always --network=proxy jwilder/nginx-proxy > /dev/null
-    echo '🔀  The Nginx proxy was not launched. I did it for you, and it will stay up until you stop it manually.'
+_isContainerRunning() {
+  $dk inspect -f '{{.State.Running}}' "$($dkc ps -q "$1" 2>/dev/null)" 2>/dev/null
 }
 
-
-createProxyIfNotRunning() {
-    isProxyRunning="$($dk inspect -f '{{.State.Running}}' nginx-proxy 2>&1)"
-    if [[ ${isProxyRunning} != 'true' ]]; then
-        createProxy
-    fi
-}
-
-up() {
-    createProxyIfNotRunning
-    $dkcU "$@"
+_isWebContainerInConfig() {
+  $dkc config --hash=web 2>/dev/null
 }
 
 _envVar() {
-    var="$($dkc exec "$1" sh -c "echo \$$2" | tr -d '\r')"
-    var="${var// }"
-    if [[ -n $var ]]; then
-        echo "$var"
-    else
-        if [[ $# -gt 2 ]]; then
-            echo "$3"
-        else
-            echo "No \$$2 environment variable found in $1." >&2
-            exit 1
-        fi
-    fi
+  if [[ -z $(_isContainerRunning "$1") ]]; then
+    echo "🛏 Container $1 is not running. Please run 'ppl up'." >&2
+    exit 1
+  fi
+
+  var="$($dkc exec "$1" sh -c "echo \$$2" | tr -d '\r')"
+  var="${var// }"
+
+  if [[ -n $var ]]; then
+    echo "$var"
+    exit 0
+  fi
+
+
+  if [[ $# -gt 2 ]]; then
+    echo "$3"
+    exit 0
+  fi
+
+
+  echo "❌  No \$$2 environment variable found in $1." >&2
+  exit 1
 }
 
-open() {
-    rootUrl=$(_envVar web PPL_OPEN) || exit 1
-    url="$rootUrl$1"
-    echo "📺 Opening $url in your browser..."
-    python -m webbrowser "$url"
+_createProxy() {
+  $dk rm -f nginx-proxy > /dev/null 2>&1
+  $dk network create proxy 2>/dev/null
+  $dk run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro --name=nginx-proxy --restart=always --network=proxy jwilder/nginx-proxy > /dev/null
+  echo '🔀  The Nginx proxy was not launched. I did it for you, and it will stay up until you stop it manually.'
+}
+
+
+_createProxyIfNotRunning() {
+  isProxyRunning="$($dk inspect -f '{{.State.Running}}' nginx-proxy 2>&1)"
+
+  if [[ $isProxyRunning != 'true' ]]; then
+    _createProxy
+  fi
+}
+
+up() {
+  if [[ -n $(_isWebContainerInConfig) ]]; then
+    createProxyIfNotRunning
+  fi
+
+  $dkcU "$@"
 }
 
 down() {
-    $dkcd "$@"
+  $dkcd "$@"
 }
 
 artisan() {
-    $dkce php artisan "$@"
+  $dkce php artisan "$@"
 }
 
 console() {
-    $dkce php ./bin/console "$@"
+  $dkce php ./bin/console "$@"
 }
 
 composer() {
-    $dkce composer "$@"
+  $dkce composer "$@"
 }
 
 yarn() {
-    $dkce yarn "$@"
+  $dkce yarn "$@"
 }
 
-getPath() {
-    SOURCE="${BASH_SOURCE[0]}"
-    while [[ -h "$SOURCE" ]]; do # resolve $SOURCE until the file is no longer a symlink
-      DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
-      SOURCE="$(readlink "$SOURCE")"
-      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    done
+open() {
+  if [[ -z $(_isWebContainerInConfig) ]]; then
+    echo "❌  Open works only if standard 'web' container is present."
+    exit 1
+  fi
 
-     cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd
-}
-
-getSrcPath() {
-    echo "$(getPath)/../src"
-}
-
-writeDockerComposeFile() {
-    sed -e "s/\${PROJECT_NAME}/$1/g" < "$(getSrcPath)"/docker-compose.yml.tpl > "${PWD}"/docker-compose.yml
-    echo "📦  New docker-compose.yml written for $1 project."
-}
-
-copyDockerFolder() {
-    cp -r "$(getSrcPath)"/docker "${PWD}"
-    echo "🐳  Docker folder copied!"
-}
-
-init() {
-    if [[ $# -gt 0 ]]; then
-        projectName=$1
-    else
-        projectName=${PWD##*/}
-    fi
-
-    writeDockerComposeFile "$projectName"
-    copyDockerFolder
-
-    echo "🎉  You're ready to go. Launch '$0 up' to start the project."
+  rootUrl=$(_envVar web PPL_OPEN) || exit 1
+  url="$rootUrl$1"
+  echo "📺 Opening $url in your browser..."
+  python -m webbrowser "$url"
 }
 
 dbInfos() {
-    image="$($dk inspect -f '{{.Config.Image}}' "$($dkc ps -q db)")"
+  if [[ -z $(_isContainerRunning db) ]]; then
+    echo "🛌 Container db is not running. Please run 'ppl up'." >&2
+    exit 1
+  fi
 
-    case $image in
-    postgres*)
-        database=$(_envVar db POSTGRES_DB postgres)
-        username=$(_envVar db POSTGRES_USER postgres)
-        password=$(_envVar db POSTGRES_PASSWORD '')
-        port=$($dkc port db 5432 | cut -d ':' -f 2)
-        cat <<EOF
-From the container:
-    DB_CONNECTION=pgsql
+  image="$($dk inspect -f '{{.Config.Image}}' "$($dkc ps -q db)")"
+
+  case $image in
+  postgres*)
+    connection='pgsql'
+    type='PostgresSQL'
+    dbPort=5432
+    database=$(_envVar db POSTGRES_DB postgres)
+    username=$(_envVar db POSTGRES_USER postgres)
+    password=$(_envVar db POSTGRES_PASSWORD '')
+    port=$($dkc port db $dbPort | cut -d ':' -f 2)
+    hostname='postgresql'
+    ;;
+  mysql*)
+    connection='mysql'
+    type='MySQL'
+    dbPort=3306
+    database=$(_envVar db MYSQL_DATABASE)
+    username=$(_envVar db MYSQL_USER root)
+    password=$(_envVar db MYSQL_PASSWORD '')
+    port=$($dkc port db $dbPort | cut -d ':' -f 2)
+    hostname='mysql'
+    ;;
+  *)
+    echo "😞 Only postgres and mysql databases are handled for now. PRs welcomed!" >&2
+    exit 1
+    ;;
+  esac
+
+  cat <<EOF
+🐳 From the containers (.env or equivalent):
+    DB_CONNECTION=$connection
     DB_HOST=db
-    DB_PORT=5432
+    DB_PORT=$dbPort
     DB_USERNAME=$username
     DB_PASSWORD=$password
     DB_DATABASE=$database
-    DATABASE_URL=postgresql://$username:$password@db:5432/$database
+    DATABASE_URL=$hostname://$username:$password@db:$dbPort/$database
 
-From outside:
-    Type: PostgresSQL
+💻 From your local computer:
+    Type: $type
     Host: 127.0.0.1
     Port: $port
     Username: $username
     Password: $password
     Database: $database
-    Url: postgresql://$username:$password@127.0.0.1:$port/$database
+    Url: $hostname://$username:$password@127.0.0.1:$port/$database
+
 EOF
-       ;;
-
-   mysql*)
-        database=$(_envVar db MYSQL_DATABASE)
-        username=$(_envVar db MYSQL_USER root)
-        password=$(_envVar db MYSQL_PASSWORD '')
-        port=$($dkc port db 3306 | cut -d ':' -f 2)
-
-        cat <<EOF
-From the container:
-    DB_CONNECTION=mysql
-    DB_HOST=db
-    DB_PORT=3306
-    DB_USERNAME=$username
-    DB_PASSWORD=$password
-    DB_DATABASE=$database
-    DATABASE_URL=mysql://$username:$password@db:3306/$database
-
-From outside:
-    Type: MySQL
-    Host: 127.0.0.1
-    Port: $port
-    Username: $username
-    Password: $password
-    Database: $database
-    Url: mysql://$username:$password@127.0.0.1:$port/$database
-EOF
-       ;;
-   *)
-        echo "😞 Only postgres and mysql databases are handled for now. PRs welcomed!" >&2
-        exit 1
-        ;;
-    esac
 }
 
 inspect() {
-    $dk inspect "$($dkc ps -q "$@")"
+  $dk inspect "$($dkc ps -q "$@")"
 }
+
+_getPath() {
+  SOURCE="${BASH_SOURCE[0]}"
+  while [[ -h "$SOURCE" ]]; do # resolve $SOURCE until the file is no longer a symlink
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  done
+
+   cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd
+}
+
+_getSrcPath() {
+  echo "$(_getPath)/../src"
+}
+
+_writeDockerComposeFile() {
+  sed -e "s/\${PROJECT_NAME}/$1/g" < "$(_getSrcPath)"/docker-compose.yml.tpl > "${PWD}"/docker-compose.yml
+  echo "📦  New docker-compose.yml written for $1 project."
+}
+
+_copyDockerFolder() {
+  cp -r "$(_getSrcPath)"/docker "${PWD}"
+  echo "🐳  Docker folder copied!"
+}
+
+init() {
+  if [[ $# -gt 0 ]]; then
+      projectName=$1
+  else
+      projectName=${PWD##*/}
+  fi
+
+  _writeDockerComposeFile "$projectName"
+  _copyDockerFolder
+
+  echo "🎉  You're ready to go. Launch '$0 up' to start the project."
+}
+
 usage() {
-    cat <<EOF
-PHP Project Launcher.
+  cat <<EOF
+🚀 PHP Project Launcher.
 
 Usage:
   $0 [COMMAND] [ARGS...]
@@ -199,77 +221,77 @@ Commands:
   ps                 List services.
   *                  Fallback on docker-compose binary.
 EOF
-exit 1
+  exit 1
 }
 
 
 
 if [[ $# -gt 0 ]]; then
-    firstArg=$1
-    shift 1
+  firstArg=$1
+  shift 1
 
-    case ${firstArg} in
-        up | u)
-            up "$@"
-            ;;
+  case ${firstArg} in
+    up | u)
+      up "$@"
+      ;;
 
-        down | d)
-            down "$@"
-            ;;
+    down | d)
+      down "$@"
+      ;;
 
-        reload | rl)
-            down
-            up --build "$@"
-            ;;
+    reload | rl)
+      down
+      up --build "$@"
+      ;;
 
-        artisan | a)
-            artisan "$@"
-            ;;
+    artisan | a)
+      artisan "$@"
+      ;;
 
-        console | sf)
-            console "$@"
-            ;;
+    console | sf)
+      console "$@"
+      ;;
 
-        composer | c)
-            composer "$@"
-            ;;
+    composer | c)
+      composer "$@"
+      ;;
 
-        yarn | y)
-            yarn "$@"
-            ;;
+    yarn | y)
+      yarn "$@"
+      ;;
 
-        bash | sh)
-            $dkce bash "$@"
-            ;;
+    bash | sh)
+      $dkce bash "$@"
+      ;;
 
-        exec | e)
-            $dkce "$@"
-            ;;
+    exec | e)
+      $dkce "$@"
+      ;;
 
-        init)
-            init "$1"
-            ;;
+    open | o)
+      open "$1"
+      ;;
 
-        open | o)
-            open "$1"
-            ;;
+    database | db)
+      dbInfos
+      ;;
 
-        database | db)
-           dbInfos
-            ;;
+    inspect | i)
+      inspect "$@"
+      ;;
 
-        inspect | i)
-            inspect "$@"
-            ;;
+    init)
+      init "$1"
+      ;;
 
-        --help | -h)
-            usage
-            ;;
-        *)
-            echo "🐳 Fallback to \"docker-compose $firstArg $*\": "
-            $dkc "${firstArg}" "$@"
-            ;;
-    esac
+    --help | -h)
+      usage
+      ;;
+    *)
+      echo "🐳 Fallback to \"docker-compose $firstArg $*\": "
+      $dkc "${firstArg}" "$@"
+      ;;
+  esac
 else
-    usage
+  usage
 fi

@@ -13,6 +13,12 @@ If the services are already set up for your project you can directly jump to "[L
 $ composer require mathieutu/php-project-launcher
 ```
 
+If you do not have php and composer on your computer you can directly use the composer docker container:
+
+```bash
+$ docker run --rm -ti -v $PWD:/app composer require mathieutu/php-project-launcher
+```
+
 *Tip: You should commit here! 😇*
 
 ### 🐳 Initialize Docker files
@@ -42,7 +48,7 @@ For each developer on its computer, every time s‧he need to launch the project
 $ ./vendor/bin/ppl up
 
 ```
-*Tip: A container of [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) will be launched with `nginx-proxy` name if not found. It will allow you to use several domain names for your projects*
+*Tip: A container of [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) will be launched as `nginx-proxy` if not found and if ther is the standard 'web' container. It will allow you to use several domain names for your projects.*
 
 ## 🎉 Make great things
 
@@ -94,7 +100,7 @@ $ ./vendor/bin/ppl artisan
 $ ./vendor/bin/ppl console
 ```
 
-Tips: because we never save too much time, you can directly them with `ppla` and `pplsf` aliases. 
+*Tip: because we never save too much time, you can directly them with `ppla` and `pplsf` aliases.*
 
 Example:
 ```bash
