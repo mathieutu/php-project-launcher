@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "Mathieu TUDISCO",
-            "email": "dev@mathieutu.ovh"
+            "email": "oss@mathieutu.dev"
         }
     ],
     "bin": ["./bin/ppl", "./bin/ppla", "./bin/pplsf"]
