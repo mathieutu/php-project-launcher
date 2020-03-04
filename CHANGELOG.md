@@ -1,5 +1,22 @@
 # Changelog
 
+<a name="0.1.1"></a>
+## 0.1.1 (2020-03-04)
+
+### Changed
+
+- ⬆️ Upgrade Postgres to version 12. [[763eb65](https://github.com/mathieutu/php-project-launcher/commit/763eb65bd7d404ac7f68ad6b4bd200a84cf77231)]
+- ♿ Improve ux of db command when not in container. [[1702f1d](https://github.com/mathieutu/php-project-launcher/commit/1702f1dc8cab3152c49ee03059642d6d5f93e2e0)]
+
+### Fixed
+
+- 🐛 Fix bugs in arguments count. [[e01a773](https://github.com/mathieutu/php-project-launcher/commit/e01a773c024b1884c9b2baaa2c211fdc813c05a7)]
+
+### Miscellaneous
+
+- 📝 Change email. [[c2a76cf](https://github.com/mathieutu/php-project-launcher/commit/c2a76cf8e1df78890471e95af0a57ba7f118eaaf)]
+
+
 <a name="0.1.0"></a>
 ## 0.1.0 (2020-03-03)
 
