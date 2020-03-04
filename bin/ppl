@@ -171,7 +171,7 @@ _getSrcPath() {
 }
 
 _writeDockerComposeFile() {
-  sed -e "s/\${PROJECT_NAME}/$1/g" < "$(_getSrcPath)"/docker-compose.yml.tpl > "${PWD}"/docker-compose.yml
+  sed -e "s/\${PROJECT_NAME}/$1/g" < "$(_getSrcPath)"/docker-compose.yml > "${PWD}"/docker-compose.yml
   echo "📦  New docker-compose.yml written for $1 project."
 }
 

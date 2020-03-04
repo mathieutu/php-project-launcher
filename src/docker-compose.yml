@@ -4,6 +4,18 @@ networks:
     external: true
 
 services:
+  db:
+    image: postgres:12
+    volumes:
+      - ./docker/sql-dumps:/docker-entrypoint-initdb.d
+    ports:
+      - 5432
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_DB: "local"
+      POSTGRES_PASSWORD: ""
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
   web:
     build: ./docker/web
     volumes:
@@ -30,17 +42,6 @@ services:
 #      - .:/var/www/html
 #    depends_on:
 #      - db
-
-  db:
-    image: postgres:10.5
-    volumes:
-      - ./docker/sql-dumps:/docker-entrypoint-initdb.d
-    ports:
-      - 5432
-    environment:
-      POSTGRES_USER: "root"
-      POSTGRES_DB: "local"
-      POSTGRES_PASSWORD: ""
 
 #  db:
 #    image: mysql:5.7
