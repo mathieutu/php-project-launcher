@@ -3,3 +3,4 @@
 /docker-compose.yml
 /yarn.lock
 /node_modules
+/.idea

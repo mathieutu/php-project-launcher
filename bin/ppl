@@ -58,7 +58,7 @@ _createProxyIfNotRunning() {
 
 up() {
   if [[ -n $(_isWebContainerInConfig) ]]; then
-    createProxyIfNotRunning
+    _createProxyIfNotRunning
   fi
 
   $dkcU "$@"
@@ -269,7 +269,7 @@ if [[ $# -gt 0 ]]; then
       ;;
 
     open | o)
-      open "$1"
+      open "$@"
       ;;
 
     database | db)
@@ -281,7 +281,7 @@ if [[ $# -gt 0 ]]; then
       ;;
 
     init)
-      init "$1"
+      init "$@"
       ;;
 
     --help | -h)
