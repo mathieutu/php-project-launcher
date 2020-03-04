@@ -107,7 +107,6 @@ dbInfos() {
   case $image in
   postgres*)
     connection='pgsql'
-    type='PostgresSQL'
     dbPort=5432
     database=$(_envVar db POSTGRES_DB postgres)
     username=$(_envVar db POSTGRES_USER postgres)
@@ -117,7 +116,6 @@ dbInfos() {
     ;;
   mysql*)
     connection='mysql'
-    type='MySQL'
     dbPort=3306
     database=$(_envVar db MYSQL_DATABASE)
     username=$(_envVar db MYSQL_USER root)
@@ -142,13 +140,13 @@ dbInfos() {
     DATABASE_URL=$hostname://$username:$password@db:$dbPort/$database
 
 💻 From your local computer:
-    Type: $type
-    Host: 127.0.0.1
-    Port: $port
-    Username: $username
-    Password: $password
-    Database: $database
-    Url: $hostname://$username:$password@127.0.0.1:$port/$database
+    DB_CONNECTION=$connection
+    DB_HOST=127.0.0.1
+    DB_PORT=$port
+    DB_USERNAME=$username
+    DB_PASSWORD=$password
+    DB_DATABASE=$database
+    DATABASE_URL=$hostname://$username:$password@127.0.0.1:$port/$database
 
 EOF
 }
