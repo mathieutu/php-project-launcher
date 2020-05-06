@@ -1,8 +1,15 @@
 #!/bin/bash
 
-dk="docker"
+_getProjectNameParameter() {
+  projectName=$(grep 'x-project-name:' docker-compose.yml | tail -n1 | awk '{ print $2}' | sed -e 's/^"//' -e 's/"$//')
+  if [[ -n $projectName ]];
+    then echo "-p $projectName";
+    else echo "";
+  fi
+}
 
-dkc="docker-compose"
+dk="docker"
+dkc="docker-compose $(_getProjectNameParameter)"
 dkcU="$dkc up -d --remove-orphans"
 dkcd="$dkc down --remove-orphans"
 dkce="$dkc exec web"
